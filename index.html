@@ -432,45 +432,82 @@ function gerarTabelaEscolas(){
         if(!agrupado[item.escola]){
 
             agrupado[item.escola] = {
-                soma:0,
-                qtd:0,
-                presenca:0
+
+                somaPontos:0,
+
+                totalSemanas:0,
+
+                somaPresenca:0
+
             }
 
         }
 
-        agrupado[item.escola].soma += item.pontos
-        agrupado[item.escola].qtd += 1
-        agrupado[item.escola].presenca += item.presenca
+        agrupado[item.escola].somaPontos += item.pontos
+
+        agrupado[item.escola].totalSemanas += 1
+
+        agrupado[item.escola].somaPresenca += item.presenca
 
     })
 
     const ranking = Object.entries(agrupado)
-    .map(([escola,dados])=>({
+    .map(([escola,dados])=>{
 
-        escola,
+        const mediaFinal =
+            dados.somaPontos /
+            dados.totalSemanas
 
-        media:
-            dados.soma / dados.qtd,
+        const mediaPresenca =
+            dados.somaPresenca /
+            dados.totalSemanas
 
-        presenca:
-            dados.presenca / dados.qtd,
+        return {
 
-        qtd:dados.qtd
+            escola,
 
-    }))
-    .sort((a,b)=>b.media-a.media)
+            media:mediaFinal,
+
+            presenca:mediaPresenca,
+
+            participacoes:dados.totalSemanas
+
+        }
+
+    })
+
+    .sort((a,b)=>{
+
+        // 1º critério = média
+        if(b.media !== a.media){
+
+            return b.media - a.media
+
+        }
+
+        // 2º critério = frequência
+        return b.presenca - a.presenca
+
+    })
 
     ranking.forEach((item,index)=>{
 
         tbody.innerHTML += `
+
             <tr>
-                <td>${index+1}</td>
+
+                <td>${index + 1}</td>
+
                 <td>${item.escola}</td>
+
                 <td>${item.media.toFixed(2)}</td>
+
                 <td>${item.presenca.toFixed(1)}%</td>
-                <td>${item.qtd}</td>
+
+                <td>${item.participacoes}</td>
+
             </tr>
+
         `
 
     })
